@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Button,
@@ -9,26 +9,60 @@ import {
   FlatList,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 
 import tw from '../../lib/tailwind';
-import {NavigProps} from '../interfaces/NaviProps';
-
-import {SvgXml} from 'react-native-svg';
-import TButton from '../components/buttons/TButton';
-
-import {Avatar} from 'react-native-ui-lib';
+import { SvgXml } from 'react-native-svg';
+import { Avatar } from 'react-native-ui-lib';
 import Notification from '../(drawer)/Notification';
 import InputText from '../../components/InputText';
-import {IconBack, IconGeneralSearch, IconRightArrow} from '../../assets/icons/icons';
-import { router } from 'expo-router';
+import { IconBack, IconGeneralSearch, IconRightArrow } from '../../assets/icons/icons';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useGetAllServiceQuery, } from '@/src/redux/apiSlice/serviceSlice';
+import { imageUrl } from '@/src/redux/baseApi';
+import { lStorage, setServiceData } from '@/src/utils';
 
 type ItemData = {
   id: string;
   image: string;
 };
 
-const DiscoverResult = ({navigation}: NavigProps<null>) => {
+const DiscoverResult = () => {
+  const [titles, setTitles] = useState()
+  const { title } = useLocalSearchParams();
+  console.log(title, "Title+++++++")
+  const [page, setPage] = useState(1);
+const [services, setServices] = useState([]);
+const [hasMore, setHasMore] = useState(true);
+
+// Optional: use limit state too
+const limit = 10;
+
+  const { data, isLoading, isFetching } = useGetAllServiceQuery({
+    search: title,
+    title: titles,
+    page,
+    limit
+  });
+  console.log(data?.data?.result, "data++++++");
+  const fullImageUrl = data?.data?.image ? `${imageUrl}/${data.data.image}` : null;
+  
+  useEffect(() => {
+    if (data?.data?.result) {
+      if (page === 1) {
+        setServices(data?.data?.result); // first page
+      } else {
+        setServices(prev => [...prev, ...data?.data?.result]); // next pages
+      }
+  
+      // Set hasMore based on totalPages
+      setHasMore(page < data.data.totalPages);
+    }
+  }, [data]);
+  
+  // console.log(JSON.stringify(data, null, 2));
+
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -54,7 +88,7 @@ const DiscoverResult = ({navigation}: NavigProps<null>) => {
   ]);
 
   const handleRead = item => {
-   router.push('chatScreen', {
+    router.push('chatScreen', {
       id: item?.id,
       is_active: item?.is_active,
       receiverId: item?.receiver_id,
@@ -70,9 +104,14 @@ const DiscoverResult = ({navigation}: NavigProps<null>) => {
       reeciverImage: item?.avatar,
     });
   };
-
+const handleService = item => {
+  console.log(item, "item++++++")
+    router.push('/screens/ProfileScreen', {id:item?.id})
+    setServiceData(item);
+}
+  
   return (
-    <View style={tw`flex-1 bg-black mt-4 px-[4%]`}>
+    <View style={tw`flex-1 bg-black px-[4%]`}>
       <View style={tw`flex-row w-full justify-between mt-4`}>
         <TouchableOpacity
           onPress={() => {
@@ -82,7 +121,7 @@ const DiscoverResult = ({navigation}: NavigProps<null>) => {
           <SvgXml xml={IconBack} />
         </TouchableOpacity>
         <Text style={tw`text-white font-AvenirLTProBlack text-2xl`}>
-         Search Result
+          Search Result
         </Text>
         {/* Placeholder view for symmetry */}
         <View style={tw`w-8`} />
@@ -90,105 +129,77 @@ const DiscoverResult = ({navigation}: NavigProps<null>) => {
 
       <View style={tw`my-8`}>
         <InputText
+        style={tw`text-white`}
           containerStyle={tw`bg-[#262329] border h-14 border-[#565358]`}
           labelStyle={tw`text-white font-AvenirLTProBlack mt-3`}
           placeholder={'Boxing'}
           placeholderColor={'white'}
           //   label={'Password'}
           iconLeft={IconGeneralSearch}
-          // iconRight={isShowConfirmPassword ? iconLock : iconLock}
-          //   onChangeText={(text: any) => setConfirmPassword(text)}
-          //   isShowPassword={!isShowConfirmPassword}
-          //   rightIconPress={() =>
-          //     setIsShowConfirmPassword(!isShowConfirmPassword)
-          //   }
+        // iconRight={isShowConfirmPassword ? iconLock : iconLock}
+          onChangeText={(text: any) => setTitles(text)}
+        //   isShowPassword={!isShowConfirmPassword}
+        //   rightIconPress={() =>
+        //     setIsShowConfirmPassword(!isShowConfirmPassword)
+        //   }
         />
       </View>
       <FlatList
-        data={notifications}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({item}) => {
+        data={services}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => {
+          const contributorImage = item?.contributor?.image
+            ? { uri: `${imageUrl}/${item?.contributor?.image}` }
+            : require('../../assets/images/logo.png'); // fallback image
+
           return (
             <TouchableOpacity
-              onPress={() => router.push('/screens/ProfileScreen')}
+            onPress={()=>handleService(item)}
+              // onPress={() => router.push('/screens/ProfileScreen', {id:item?.id})}
               style={tw`flex-row items-center bg-[#262329] my-1 rounded-2xl gap-2 p-2`}>
+
               <View style={tw`flex-row items-center`}>
-                <View style={tw`relative items-center`}>
-                  {item?.data?.creator_image && (
-                    <Avatar
-                      source={item?.data?.creator_image}
-                      size={50}
-                      containerStyle={tw`mr-4`}
-                    />
-                  )}
-                  {/* {item?.data?.creator_name ? (
-                  <View
-                    style={tw`w-3 h-3 bg-gray-400 rounded-full absolute bottom-0 right-4`}
+                <View style={tw`relative items-center mr-2`}>
+                  <Image
+                    source={contributorImage}
+                    style={tw`w-12 h-12 rounded-full`}
+                    resizeMode="cover"
                   />
-                ) : (
-                  <View
-                    style={tw`w-3 h-3 bg-green-500 rounded-full absolute bottom-0 right-4`}
-                  />
-                )} */}
                 </View>
+
                 <View style={tw`flex-1 pb-2`}>
                   <View style={tw`flex-row justify-between mr-2 items-center`}>
                     <Text style={tw`text-white font-AvenirLTProBlack`}>
-                      Boxing Course
+                      {item?.title}
                     </Text>
-                    {/* <View
-                    style={tw`bg-white w-4 h-4 items-center justify-center rounded-full`}>
-                    <Text style={tw`text-black font-AvenirLTProBlack text-xs`}>
-                      2
-                    </Text>
-                  </View> */}
                   </View>
+
                   <View style={tw`flex-row justify-between mt-2`}>
                     <Text style={tw`text-white font-AvenirLTProBlack`}>
-                      Teaching boxing and kick boxing
+                      {item?.subtitle}
                     </Text>
-                    {/* <Text style={tw`text-white font-AvenirLTProBlack`}>
-                    09:41
-                  </Text> */}
                   </View>
-                  {/* {item.message === 0 ? (
-                  <TouchableOpacity
-                    onPress={() => handleRead(item)}
-                    style={tw`flex-row items-center mt-2`}>
-                    <Text style={tw`text-blue-500 px-2 font-AvenirLTProBlack`}>
-                      {item.created_at}
-                    </Text>
-                    <View
-                      style={tw`w-5 h-5 items-center justify-center bg-red-500 rounded-full`}>
-                      <Text style={tw`font-AvenirLTProBlack `}>
-                        {item.data?.message}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    onPress={() => handleRead(item)}
-                    style={tw`flex-row items-center mt-2`}>
-                    <Text style={tw`text-blue-500 px-2 font-AvenirLTProBlack`}>
-                      {item.created_at}
-                    </Text>
-                    <View
-                      style={tw`w-5 h-5 items-center justify-center bg-red-500 rounded-full`}>
-                      <Text style={tw`font-AvenirLTProBlack`}>
-                        {item.message}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )} */}
                 </View>
+
                 <SvgXml xml={IconRightArrow} />
               </View>
             </TouchableOpacity>
           );
         }}
+        onEndReached={() => {
+          if (!isFetching && hasMore) {
+            setPage(prev => prev + 1);
+          }
+        }}
+        ListFooterComponent={
+          isFetching && hasMore ? (
+            <ActivityIndicator size="large" color="white" />
+          ) : null
+        }
       />
 
-      <StatusBar backgroundColor="black" translucent />
+
+      <StatusBar backgroundColor="black" translucent={false} />
     </View>
   );
 };

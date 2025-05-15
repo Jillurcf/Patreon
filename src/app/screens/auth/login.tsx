@@ -25,8 +25,11 @@ import {
 } from '../../../assets/icons/icons';
 import TButton from '../../../components/TButton';
 import { router } from 'expo-router';
-import { lStorage } from '@/src/utils';
+import { getStorageToken, lStorage, setStorageToken } from '@/src/utils';
+// import { useLoginUserMutation } from '@/src/redux/apiSlice/authSlice';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { useLoginUserMutation } from '@/src/redux/apiSlice/authSlice';
+
 // import {useSignupMutation} from '../../redux/api/apiSlice/apiSlice';
 
 const Login = () => {
@@ -63,10 +66,12 @@ const Login = () => {
           console.log("Try catch click")
           const res = await loginUser(formData).unwrap();
           setLoginError(res)
-          console.log("login res", res?.data?.token)
+          console.log("login res++++++++", res?.data?.token)
           if (res?.data?.token) {
             lStorage.setString('token', res?.data?.token);
-            // setStorageToken(res?.access_token);
+            setStorageToken(res?.data?.token);
+           const token = getStorageToken();
+           console.log(token, "token++++++ after set")
            router.replace('/');
            router.replace('/(drawer)/(tab)');
           }

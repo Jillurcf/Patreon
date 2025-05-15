@@ -34,21 +34,23 @@ import tw from '../../lib/tailwind';
 import IconArrow from '../../components/IconArrow';
 import {SvgXml} from 'react-native-svg';
 import { router } from 'expo-router';
+import { usePostBecmeAContibutorMutation } from '@/src/redux/apiSlice/serviceSlice';
 
 const data = [
-  {label: 'Item 1', value: '1'},
-  {label: 'Item 2', value: '2'},
-  {label: 'Item 3', value: '3'},
-  {label: 'Item 4', value: '4'},
-  {label: 'Item 5', value: '5'},
-  {label: 'Item 6', value: '6'},
-  {label: 'Item 7', value: '7'},
-  {label: 'Item 8', value: '8'},
+  {label: 'Marketing', value: '1'},
+  {label: 'Finance', value: '2'},
+  {label: 'Law', value: '3'},
+  {label: 'Economy', value: '4'},
+  {label: 'Writing', value: '5'},
+  {label: 'Business', value: '6'},
+  // {label: 'Item 7', value: '7'},
+  // {label: 'Item 8', value: '8'},
 ];
 
 const ExplainMembership = () => {
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
+  const [postBecmeAContibutor, {isLoading, isError}] = usePostBecmeAContibutorMutation()
 
   // const renderLabel = () => {
   //   if (value || isFocus) {
@@ -76,9 +78,46 @@ const ExplainMembership = () => {
           <View style={tw`w-8`} />
         </View>
         
-        <Text style={tw`text-white font-AvenirLTProBlack mt-6 mb-2`}>
+    
+        <View style={tw`flex-row w-[100%] mt-4 items-center p-3`}>
+          <TouchableOpacity
+            // onPress={() => selectMediaType()}
+            style={tw`mr-2 absolute right-6 z-30`}>
+            {/* <SvgXml xml={IconDollar} width={20} height={20} /> */}
+          </TouchableOpacity>
+          <View
+            style={tw`flex-row  gap-1 px-[2%] items-center relative`}>
+            <TextInput
+              style={tw`w-[100%] h-10 border text-white bg-[#262329] border-gray-400 rounded-2xl px-2`}
+              placeholder="Write title here"
+              placeholderTextColor={'white'}
+              cursorColor={'white'}
+              // value={text}
+              // onChangeText={value => setText(value)}
+            />
+          </View>
+        </View>
+        <View style={tw`flex-row w-[100%] items-center p-3`}>
+          <TouchableOpacity
+            // onPress={() => selectMediaType()}
+            style={tw`mr-2 absolute right-6 z-30`}>
+            {/* <SvgXml xml={IconDollar} width={20} height={20} /> */}
+          </TouchableOpacity>
+          <View
+            style={tw`flex-row  gap-1 px-[2%] items-center relative`}>
+            <TextInput
+              style={tw`w-[100%] h-10 border text-white bg-[#262329] border-gray-400 rounded-2xl px-2`}
+              placeholder="Write subtitle"
+              placeholderTextColor={'white'}
+              cursorColor={'white'}
+              // value={text}
+              // onChangeText={value => setText(value)}
+            />
+          </View>
+        </View>
+        {/* <Text style={tw`text-white font-AvenirLTProBlack mt-6 mb-2`}>
           Price
-        </Text>
+        </Text> */}
         <View style={tw`flex-row w-[100%] items-center p-3`}>
           <TouchableOpacity
             // onPress={() => selectMediaType()}
@@ -89,7 +128,7 @@ const ExplainMembership = () => {
             style={tw`flex-row  gap-1 px-[2%] items-center relative`}>
             <TextInput
               style={tw`w-[100%] h-10 border text-white bg-[#262329] border-gray-400 rounded-2xl px-2`}
-              placeholder="Currency"
+              placeholder="Input currency"
               placeholderTextColor={'white'}
               cursorColor={'white'}
               // value={text}
@@ -100,12 +139,12 @@ const ExplainMembership = () => {
 
         {/* ==========================input textarea ========================= */}
         <View style={tw`mt-8`}>
-          <Text style={tw`text-white font-AvenirLTProBlack py-2`}>Input</Text>
+          {/* <Text style={tw`text-white font-AvenirLTProBlack py-2`}>Input</Text> */}
           <View
             style={tw`h-44 p-2 bg-[#262329] border border-[#565358] w-full rounded-lg`}>
             <Textarea
               style={tw`text-left h-40 text-white`}
-              placeholder={'Write it here'}
+              placeholder={'Write description it here'}
               placeholderTextColor={'#c7c7c7'}
               underlineColorAndroid={'transparent'}
               multiline
@@ -118,10 +157,9 @@ const ExplainMembership = () => {
         </View>
         {/* ==========================drop down area =============================== */}
         <View style={tw`mt-8`}>
-          <Text style={tw`text-white font-AvenirLTProBlack py-2`}>Input</Text>
-          <View
-            style={tw`h-44 p-2 bg-[#262329] border border-[#565358] w-full rounded-lg`}>
-            <View style={styles.container}>
+          {/* <Text style={tw`text-white font-AvenirLTProBlack py-2`}>Input</Text> */}
+        
+            
               {/* {renderLabel()} */}
               <Dropdown
                 style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
@@ -134,7 +172,7 @@ const ExplainMembership = () => {
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? 'Select item' : '...'}
+                placeholder={!isFocus ? 'Select category' : '...'}
                 searchPlaceholder="Search..."
                 value={value}
                 onFocus={() => setIsFocus(true)}
@@ -146,8 +184,8 @@ const ExplainMembership = () => {
               />
             </View>
           </View>
-        </View>
-      </View>
+
+
 
       {/* Continue button */}
       <View style={tw`flex mb-6 my-12 items-center justify-center w-full`}>
@@ -173,6 +211,7 @@ const styles = StyleSheet.create({
   dropdown: {
     height: 50,
     color: 'white',
+    backgroundColor: "#262329",
     borderColor: 'gray',
     borderWidth: 0.5,
     borderRadius: 8,

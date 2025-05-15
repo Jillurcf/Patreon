@@ -200,7 +200,7 @@ const PaymentDetails = ({navigation}: NavigProps<null>) => {
           Cvv
         </Text>
         <View
-          style={tw`h-14 p-2 bg-[#262329] border border-[#565358] w-[95] rounded-lg`}>
+          style={tw`h-14 p-4 bg-[#262329] border border-[#565358] w-[95] rounded-lg`}>
           <Textarea
             style={tw`text-left h-40 text-white`}
             placeholder={'Write it here'}

@@ -23,12 +23,14 @@ import tw from '../../lib/tailwind';
 import {RadioButton} from 'react-native-ui-lib';
 import TButton from '../../components/TButton';
 import { router } from 'expo-router';
+
 // import RadioButtonRN from 'radio-buttons-react-native';
 
 type Props = {};
 
 const BecomeContributor = () => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  
 
   const handleRadioButtonPress = (option: string) => {
     setSelectedOption(option);

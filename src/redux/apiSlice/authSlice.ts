@@ -10,6 +10,13 @@ const authSlice = api.injectEndpoints({
         }),
         providesTags: ['user'],
       }),
+      postCheckToken: builder.mutation({
+        query: () => ({
+          url: `/auth/verify-token`,
+          method: 'POST', // Ensure method is explicitly defined
+        }),
+       invalidatesTags: ['user'],
+      }),
       loginUser: builder.mutation({
         query: (data) => ({
           url: `/auth/login`,
@@ -70,12 +77,12 @@ const authSlice = api.injectEndpoints({
       }),
       changePassword: builder.mutation({
         query: (data) => ({
-          url: `/reset-password`,
+          url: `/auth/reset-password`,
           method: 'POST', // Ensure method is explicitly defined
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            // 'Content-Type': 'application/json',
-          },
+          // headers: {
+          //   'Content-Type': 'multipart/form-data',
+          //   // 'Content-Type': 'application/json',
+          // },
           body: data,
         }),
         invalidatesTags: ['user'],
@@ -103,4 +110,5 @@ export const {useLoginUserMutation,
     useChangePasswordMutation,
     usePostSocialLoginMutation,
     usePhoneNoVerificationMutation,
+    usePostCheckTokenMutation
 } = authSlice;

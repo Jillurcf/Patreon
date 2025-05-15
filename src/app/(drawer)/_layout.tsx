@@ -3,6 +3,7 @@ import Button from '@/src/components/Button';
 import NormalModal from '@/src/components/NormalModal';
 import tw from '@/src/lib/tailwind';
 import { lStorage } from '@/src/utils';
+import CookieManager from '@react-native-cookies/cookies';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
@@ -19,6 +20,7 @@ export default function DrawerLayout() {
     setLogoutConfirmationModalVisible(false)
     router.replace('/screens/auth/login')
     lStorage.removeItem('token')
+    CookieManager.clearAll()
   };
 
   return (

@@ -17,6 +17,7 @@ import {SvgXml} from 'react-native-svg';
 import tw from '../../lib/tailwind';
 import {RadioButton} from 'react-native-ui-lib';
 import TButton from '../../components/TButton';
+import { router } from 'expo-router';
 // import RadioButtonRN from 'radio-buttons-react-native';
 
 type Props = {};
@@ -33,13 +34,7 @@ const PaymentScreen = ({navigation}) => {
       <View style={tw`flex-row w-full justify-between mt-4`}>
         <TouchableOpacity
           onPress={() => {
-            if (navigation.canGoBack()) {
-              navigation.goBack();
-            } else {
-              console.log('No screen to go back to');
-              // Optionally, navigate to a default screen:
-              // navigation.navigate('HomeScreen');
-            }
+            router.back()
           }}
           style={tw`bg-PrimaryFocus rounded-full p-1`}>
           <SvgXml xml={IconBack} />
@@ -134,7 +129,7 @@ const PaymentScreen = ({navigation}) => {
           </View>
           <View style={tw`w-[50%] items-center my-6`}>
             <TButton
-              onPress={() => navigation.navigate('PaymentDetails')}
+              onPress={() => router.push('/screens/PaymentResult')}
               title="Pay"
               titleStyle={tw`text-black`}
               containerStyle={tw`w-[90%] bg-white`}
@@ -142,7 +137,7 @@ const PaymentScreen = ({navigation}) => {
           </View>
         </View>
       </View>
-      <StatusBar backgroundColor="black" translucent />
+      <StatusBar backgroundColor="black" translucent={false} />
     </View>
   );
 };

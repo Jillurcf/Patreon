@@ -40,7 +40,7 @@ const VerifyScreen = () => {
   const { screenName, phoneNumber } = useLocalSearchParams()
   const [alertVisible, setAlertVisible] = useState(false);
 
-  console.log(screenName, "screenName++++++")
+  console.log(screenName, phoneNumber , "screenName + Phone number++++++")
 
   const showCustomAlert = () => {
     setAlertVisible(true);
@@ -136,7 +136,11 @@ const VerifyScreen = () => {
       if (response?.success === true) {
         console.log("OTP Verified Successfully!");
         if (screenName === "forgetPass") {
-          router.push("/screens/auth/forgetPasswordScreen")
+          router.push(
+            {
+              pathname: '/screens/auth/forgetPasswordScreen',
+              params: { phoneNumber: phoneNumber },
+            });
         } else {
           router.push("/screens/auth/Signup")
         }

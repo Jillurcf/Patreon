@@ -24,7 +24,9 @@ import {
     IconUser,
 } from '../../../assets/icons/icons';
 import TButton from '../../../components/TButton';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useChangePasswordMutation } from '@/src/redux/apiSlice/authSlice';
+
 // import {useSignupMutation} from '../../redux/api/apiSlice/apiSlice';
 
 const ForgetPass = ({ navigation }: any) => {
@@ -38,7 +40,9 @@ const ForgetPass = ({ navigation }: any) => {
     const [isShowPassword, setIsShowPassword] = useState(false);
     const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false);
     const [checkValue, setCheckValue] = useState(false);
-    // const [SignUp, {isLoading, isError}] = useSignupMutation();
+      const { screenName, phoneNumber } = useLocalSearchParams();
+      console.log(phoneNumber, "phoneNumber++++++")
+   const [ changePassword, { isLoading, isError }] = useChangePasswordMutation();
     console.log('27', password, confirmPassword);
     // const data = {email, password, name:username, address:location}
 
@@ -48,61 +52,34 @@ const ForgetPass = ({ navigation }: any) => {
 
     console.log(allFilled, "allFilled")
 
-    const handleSignup = async () => {
+    const handleChangePassword = async () => {
+        console.log('clicked');
         try {
+            console.log('handleChangePassword called');
+            const formData = new FormData();
+            formData.append('phoneNumber', phoneNumber);
+            formData.append('password', password);
+            formData.append('confirmPassword', confirmPassword);
+            console.log(formData, "formData+++++")
+            // const response = await changePassword(formData)
+            // console.log('Response:', response);
+           
+            const response = await fetch("http://10.0.80.85:3004/api/auth/reset-password", {
+                method: "POST",
+                body: formData,
+                // ❌ Don't set Content-Type manually
+              });
+              console.log(response, "response+++++")
             // Validate required fields before sending the request
-            if (!email || !password) {
-                Alert.alert('Error', 'All fields are required.');
-                return;
+            if (response.status === 200) {
+                router.push("/screens/auth/login");
+            } else {
+                console.log('Please fill all fields');
             }
-
-            // const data = {
-            //   email: email.trim(),
-            //   password: password.trim(),
-            //   name: username.trim(),
-            //   address: location.trim(),
-            // };
-
-            // Send data through the SignUp function and unwrap the response
-            // const response = await SignUp(data).unwrap();
-
-            // console.log("Response from SignUp:", response);
-
-            // if (response && response.status === true) {
-            //   navigation?.navigate('VerifyOtp', { email, from: "signup" });
-            // } else if (response && response.status === false) {
-            //   // Extract error messages
-            //   const errorMessages = [];
-            //   if (response?.message) {
-            //     Object.values(response.message).forEach((errors) => {
-            //       if (Array.isArray(errors)) {
-            //         errorMessages.push(...errors);
-            //       } else {
-            //         errorMessages.push(errors);
-            //       }
-            //     });
-            //   }
-
-            //   // Show Alert with error messages
-            //   Alert.alert("Signup Failed", errorMessages.join("\n"));
-            // }
+         
         } catch (err) {
-            console.error('Error during SignUp:', err);
-
-            // Extract error messages
-            // const errorMessages = [];
-            // if (err?.message) {
-            //   Object.values(err.message).forEach((errors) => {
-            //     if (Array.isArray(errors)) {
-            //       errorMessages.push(...errors);
-            //     } else {
-            //       errorMessages.push(errors);
-            //     }
-            //   });
-            // }
-
-            // // Show Alert with error messages or a default message
-            // Alert.alert("Signup Error", errorMessages.length ? errorMessages.join("\n") : "An unexpected error occurred. Please try again.");
+            console.log('Error:=============', err);
+            Alert.alert('Error', 'An error occurred while changing password');
         }
     };
 
@@ -172,13 +149,8 @@ const ForgetPass = ({ navigation }: any) => {
                     title={'Continue'}
                     style={tw`${allFilled ? 'text-black' : 'text-gray-500'} font-AvenirLTProBlack items-center`}
                     containerStyle={tw`${allFilled ? 'bg-white' : 'bg-PrimaryFocus'} mt-4 h-14 rounded-2xl justify-center`}
-                    onPress={() => {
-                        if (allFilled) {
-                            router.push("/screens/auth/verifyScreen");
-                        } else {
-                            Alert.alert('Please fill all fields');
-                        }
-                    }}
+                    onPress={handleChangePassword}                      
+                 
                 />
             </View>
             <StatusBar backgroundColor="black" translucent={false} />

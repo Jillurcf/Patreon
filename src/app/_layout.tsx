@@ -6,11 +6,10 @@ import store from '../redux/store';
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView >
+    <GestureHandlerRootView style={styles.container}>
       <Provider store={store}>
         <Slot />
       </Provider>
-
     </GestureHandlerRootView>
   );
 }

@@ -15,12 +15,17 @@ import {IconBusiness, IconDrawer, IconEconomy, IconFinance, IconGeneralSearch, I
 import {DrawerActions, useNavigation} from '@react-navigation/native';
 import InputText from '../../../components/InputText';
 import { router } from 'expo-router';
+import { useGetAllCategoryQuery } from '@/src/redux/apiSlice/categorySlice';
+import { imageUrl } from '@/src/redux/baseApi';
+
 
 type Props = {};
 
 const Discover = () => {
   const navigation = useNavigation();
   const [successModal, setSuccessModal] = useState(false);
+  const {data, isLoading, isError} =useGetAllCategoryQuery({});
+  // console.log(data, "data++++++")
   const DiscoverData = [
     {id: '1', title: 'Marketing', route: '', icon: IconMarketing, iconType: 'image'},
     {id: '2', title: 'Finnance', route: '', icon: IconFinance, iconType: 'image'},
@@ -30,16 +35,21 @@ const Discover = () => {
     {id: '6', title: 'Business', route: '', icon: IconBusiness         , iconType: 'image'},
   ];
   const {width, height} = Dimensions.get('screen');
-  const handlePress = (route: string, taskId: string, icon: string) => {
+  const handlePress = (route: string, title: string, taskId: string, icon: string) => {
+    console.log('route', route);
+    console.log('taskId', taskId);
+    console.log('title', title);
     if (taskId === '3') {
       setSuccessModal(true);
     } else {
-     router.push(route, {taskId});
+     router.push("/screens/DiscoverResult", {ttile: title});
     }
   };
   // const handleTransfer = () => {
   //   navigation.navigate('cashTransfer');
   // };
+
+
   return (
     <View style={tw`bg-black flex-1 px-[4%] mt-4`}>
       <View style={tw`flex-row justify-between my-4 items-center`}>
@@ -85,47 +95,58 @@ const Discover = () => {
       <View>
         <FlatList
           key={`flatlist-2`}
-          data={DiscoverData}
+          data={data?.data}
           keyExtractor={item => item.id}
           numColumns={2}
           columnWrapperStyle={{justifyContent: 'center'}}
           scrollEnabled={false} // Disable FlatList scrolling
-          renderItem={({item}) => (
-            <TouchableOpacity
-              // style={tw`md:w-28 md:h-28 sm:w-20 sm:h-20  rounded-lg m-2 h-24 bg-[#F4F1F1] justify-center items-center`}
-              style={{
-                width: width * 0.4,
-                height: height * 0.12,
-                margin: width * 0.02,
-                backgroundColor: '#262329',
-                borderRadius: width * 0.02,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handlePress(item.route, item.id, item.icon)}>
-              {/* {item.iconType === 'Image' ? ( */}
-              {/* <Image source={item.icon} style={{width: 22, height: 22}} /> */}
-              <SvgXml width={24} height={24} xml={item?.icon}/>
-              {/* ) : item.iconType === 'MaterialCommunityIcons' ? (
-      <MaterialCommunityIcons
-        name={item.icon}
-        size={20}
-        color="#0C84C5"
-      />
-    ) : (
-      <MaterialCommunityIcons
-        name={item.icon}
-        size={20}
-        color="#0C84C5"
-      />
-    )} */}
-              <Text
-                style={tw`text-start py-2 text-white font-AvenirLTProBlack`}>
-                {item.title}
-              </Text>
-            </TouchableOpacity>
-          )}
+          renderItem={({item}) => {
+            console.log(item, "")
+            const categoryImg = !item?.image
+                        ? { uri: `${imageUrl}/${item?.image}` }
+                        : require('../../../assets/images/logo.png'); // fallback image
+              console.log(categoryImg, "categoryImg+++++++=")
+            return (
+              (
+                <TouchableOpacity
+                  // style={tw`md:w-28 md:h-28 sm:w-20 sm:h-20  rounded-lg m-2 h-24 bg-[#F4F1F1] justify-center items-center`}
+                  style={{
+                    width: width * 0.4,
+                    height: height * 0.12,
+                    margin: width * 0.02,
+                    backgroundColor: '#262329',
+                    borderRadius: width * 0.02,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  onPress={() => handlePress(item.route, item.id, item.title, item.icon)}>
+                  {/* {item.iconType === 'Image' ? ( */}
+                  <Image source={categoryImg} style={tw`w-6 h-6`}  width={10} height={10} />
+                  {/* <SvgXml width={24} height={24} xml={item?.icon}/> */}
+                  {/* ) : item.iconType === 'MaterialCommunityIcons' ? (
+          <MaterialCommunityIcons
+            name={item.icon}
+            size={20}
+            color="#0C84C5"
+          />
+        ) : (
+          <MaterialCommunityIcons
+            name={item.icon}
+            size={20}
+            color="#0C84C5"
+          />
+        )} */}
+                  <Text
+                    style={tw`text-start py-2 text-white font-AvenirLTProBlack`}>
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              )
+            )
+          }
+            
+      }
         />
       </View>
       <StatusBar backgroundColor="black" translucent />

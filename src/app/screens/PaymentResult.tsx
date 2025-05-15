@@ -11,6 +11,7 @@ import tw from '../../lib/tailwind';
 import {SvgXml} from 'react-native-svg';
 import {IconBack} from '../../assets/icons/icons';
 import TButton from '../../components/TButton';
+import { router } from 'expo-router';
 
 type Props = {};
 
@@ -40,7 +41,7 @@ const PaymentResult = ({navigation}) => {
           
           <View style={tw`w-full items-center my-6`}>
             <TButton
-              onPress={() => navigation.goBack()}
+              onPress={() => router.back()}
               title="Back"
               titleStyle={tw`text-black`}
               containerStyle={tw`w-[90%] bg-white`}

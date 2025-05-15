@@ -62,6 +62,21 @@ export const removeStorageRole = () => {
   lStorage.removeItem('role');
 };
 
+// Store and retrieve service object
+export const setServiceData = (service: any) => {
+  lStorage.setMap('services', service);
+};
+
+export const getServiceData = () => lStorage.getMap('services');
+
+// Store and retrieve service object
+export const setContibutorData = (contibutor: any) => {
+  lStorage.setMap('contibutor', contibutor);
+};
+
+export const getContibutorData = () => lStorage.getMap('contibutor');
+
+
 export const useImagePicker = async ({
   option,
   selectionLimit,
