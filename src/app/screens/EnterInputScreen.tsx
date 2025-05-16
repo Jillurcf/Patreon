@@ -9,13 +9,13 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  TextInput,
 } from 'react-native';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import Video from 'react-native-video';
 
 import { SvgXml } from 'react-native-svg';
-import { NavigProps } from '../interface/NaviProps';
-import Textarea from 'react-native-textarea';
+
 
 import {
   BulbIcon,
@@ -30,14 +30,19 @@ import IButton from '../../components/IButton';
 import TButton from '../../components/TButton';
 import tw from '../../lib/tailwind';
 import { router } from 'expo-router';
+import { loadMediaPromptData, saveMediaPromptData } from '@/src/utils';
 
-const EnterInput = ({ navigation }: NavigProps<null>) => {
+
+const EnterInput = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [capturedVideo, setCapturedVideo] = useState<string | null>(null);
   const [promptInput, setPromptInput] = useState<string | null>("");
- 
+  useEffect(() => {
+    const { selectedImages, promptInput } = loadMediaPromptData();
+    setSelectedImages(selectedImages);
+    setPromptInput(promptInput);
+  }, []);
 
-  console.log('Selected Images:', selectedImages);
+  console.log('Selected Images:', selectedImages, promptInput);
 
   // Open gallery to select images
   const openGallery = async () => {
@@ -58,35 +63,7 @@ const EnterInput = ({ navigation }: NavigProps<null>) => {
   };
 
   // Open camera to capture images
-  const openCamera = async () => {
-    try {
-      const image = await ImageCropPicker.openCamera({
-        width: 300,
-        height: 300,
-        cropping: true,
-      });
 
-      setSelectedImages(prev => [...prev, image.path]);
-      Alert.alert('Success', 'Image saved locally!');
-    } catch (error) {
-      console.error('Camera Error:', error);
-      Alert.alert('Error', 'Camera not available. Please check permissions.');
-    }
-  };
-
-  // Capture video
-  const captureVideo = async () => {
-    try {
-      const video = await ImageCropPicker.openCamera({
-        mediaType: 'video',
-      });
-      setCapturedVideo(video.path);
-    } catch (error) {
-      if (error.message !== 'User cancelled image selection') {
-        Alert.alert('Error', error.message || 'Something went wrong');
-      }
-    }
-  };
 
   // Remove a specific image
   const handleRemoveImage = (index: number) => {
@@ -94,8 +71,13 @@ const EnterInput = ({ navigation }: NavigProps<null>) => {
   };
 
   // Clear the captured video
-  const clearCapturedVideo = () => {
-    setCapturedVideo(null);
+  const handleSave = () => {
+    console.log(selectedImages, promptInput, "data before sending========")
+    saveMediaPromptData(selectedImages, null, promptInput);
+    const { selectedImages: savedImages, promptInput: savedPrompt } = loadMediaPromptData();
+    console.log(savedImages, savedPrompt, 'Retrieved data from storage ++++++++');
+    Alert.alert('Saved', 'Your data has been saved successfully!');
+    router.push("/screens/ExplainMembership")
   };
 
   return (
@@ -122,15 +104,16 @@ const EnterInput = ({ navigation }: NavigProps<null>) => {
           <View style={tw`mt-8`}>
             <Text style={tw`text-white py-2 font-AvenirLTProBlack`}>Prompt input</Text>
             <View style={tw`h-44 p-2 bg-[#262329] border border-[#565358] w-full rounded-lg`}>
-              <Textarea
-                onChangeText={(text) => setPromptInput(text)}
+              <TextInput
+                value={promptInput}
+                onChangeText={setPromptInput}
                 style={tw`text-left h-40 text-white`}
-                placeholder={'Write it here'}
-                placeholderTextColor={'#c7c7c7'}
-                underlineColorAndroid={'transparent'}
+                placeholder="Write it here"
+                placeholderTextColor="#c7c7c7"
                 multiline
                 maxLength={120}
                 textAlignVertical="top"
+                underlineColorAndroid="transparent"
               />
             </View>
           </View>
@@ -170,16 +153,7 @@ const EnterInput = ({ navigation }: NavigProps<null>) => {
               )}
 
               {/* Display captured video */}
-              {capturedVideo && (
-                <View style={tw`relative`}>
-                  <Video source={{ uri: capturedVideo }} style={tw`w-72 h-48 mt-2`} controls resizeMode="contain" />
-                  <IButton
-                    containerStyle={tw`absolute top-[-8px] right-[-8px] bg-red-500 rounded-full p-1`}
-                    svg={CrossIcon}
-                    onPress={clearCapturedVideo}
-                  />
-                </View>
-              )}
+
             </View>
           </View>
         </View>
@@ -187,7 +161,7 @@ const EnterInput = ({ navigation }: NavigProps<null>) => {
         {/* Continue Button */}
         <View style={tw`flex mb-6 my-12 items-center justify-center w-full`}>
           <TButton
-            onPress={() => Alert.alert("Success")}
+            onPress={handleSave}
             titleStyle={tw`text-black font-bold text-center`}
             title="Save"
             containerStyle={tw`bg-primary w-[90%] rounded-full`}

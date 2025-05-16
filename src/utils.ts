@@ -69,12 +69,111 @@ export const setServiceData = (service: any) => {
 
 export const getServiceData = () => lStorage.getMap('services');
 
-// Store and retrieve service object
-export const setContibutorData = (contibutor: any) => {
-  lStorage.setMap('contibutor', contibutor);
+// for pormInput 
+
+// Save form value object
+export const setExplainMemberValue = (value: {
+  title: string;
+  subtitle: string;
+  currency: string;
+  price: string;
+  description: string;
+  category: string;
+}) => {
+  try {
+    lStorage.setString('explainMemberValue', JSON.stringify(value));
+  } catch (error) {
+    console.error('Failed to save form value:', error);
+  }
 };
 
-export const getContibutorData = () => lStorage.getMap('contibutor');
+// Load form value object
+export const getExplainMemberValue = (): {
+  title: string;
+  subtitle: string;
+  currency: string;
+  price: string;
+  description: string;
+  category: string;
+} => {
+  try {
+    const storedValue = lStorage.getString('explainMemberValue');
+    return storedValue
+      ? JSON.parse(storedValue)
+      : {
+          title: '',
+          subtitle: '',
+          currency: '',
+          price: '',
+          description: '',
+          category: '',
+        };
+  } catch (error) {
+    console.error('Failed to load form value:', error);
+    return {
+      title: '',
+      subtitle: '',
+      currency: '',
+      price: '',
+      description: '',
+      category: '',
+    };
+  }
+};
+
+// Optional: clear it
+export const clearFormValue = () => {
+  try {
+    lStorage.removeItem('explainMemberValue');
+  } catch (error) {
+    console.error('Failed to clear form value:', error);
+  }
+};
+
+
+
+export const saveMediaPromptData = (
+  selectedImages: string[],
+  capturedVideo: string | null,
+  promptInput: string | null
+) => {
+  try {
+    lStorage.setString('selectedImages', JSON.stringify(selectedImages));
+    lStorage.setString('capturedVideo', capturedVideo || '');
+    lStorage.setString('promptInput', promptInput || '');
+  } catch (e) {
+    console.error('Storage Save Error:', e);
+  }
+};
+
+export const loadMediaPromptData = () => {
+  try {
+    const images = lStorage.getString('selectedImages');
+    const video = lStorage.getString('capturedVideo');
+    const prompt = lStorage.getString('promptInput');
+
+    return {
+      selectedImages: images ? JSON.parse(images) : [],
+      capturedVideo: video || null,
+      promptInput: prompt || '',
+    };
+  } catch (e) {
+    console.error('Storage Load Error:', e);
+    return { selectedImages: [], capturedVideo: null, promptInput: '' };
+  }
+};
+
+export const clearMediaPromptData = () => {
+  try {
+    lStorage.removeItem('selectedImages');
+    lStorage.removeItem('capturedVideo');
+    lStorage.removeItem('promptInput');
+  } catch (e) {
+    console.error('Storage Clear Error:', e);
+  }
+};
+
+
 
 
 export const useImagePicker = async ({
