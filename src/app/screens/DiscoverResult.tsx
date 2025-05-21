@@ -30,24 +30,29 @@ type ItemData = {
 
 const DiscoverResult = () => {
   const [titles, setTitles] = useState()
-  const { title } = useLocalSearchParams();
-  console.log(title, "Title+++++++")
+  const { title, taskId, route } = useLocalSearchParams();
+  // console.log(title, "Title+++++++")
   const [page, setPage] = useState(1);
-const [services, setServices] = useState([]);
-const [hasMore, setHasMore] = useState(true);
+  const [services, setServices] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  console.log(title, titles, taskId, route, "title, titles, taskId, route==============+++++++++++++++++++++++38")
+  // Optional: use limit state too
+  const limit = 10;
 
-// Optional: use limit state too
-const limit = 10;
-
-  const { data, isLoading, isFetching } = useGetAllServiceQuery({
-    search: title,
+  const { data, isLoading, error, isFetching } = useGetAllServiceQuery({
+    category: taskId, 
     title: titles,
     page,
-    limit
+    limit,
   });
-  console.log(data?.data?.result, "data++++++");
-  const fullImageUrl = data?.data?.image ? `${imageUrl}/${data.data.image}` : null;
   
+  console.log('API response:', data);
+  console.log('Error:', error);
+  
+  
+  // console.log(data?.data?.result, "data++++++");
+  const fullImageUrl = data?.data?.image ? `${imageUrl}/${data.data.image}` : null;
+
   useEffect(() => {
     if (data?.data?.result) {
       if (page === 1) {
@@ -55,12 +60,12 @@ const limit = 10;
       } else {
         setServices(prev => [...prev, ...data?.data?.result]); // next pages
       }
-  
+
       // Set hasMore based on totalPages
       setHasMore(page < data.data.totalPages);
     }
   }, [data]);
-  
+
   // console.log(JSON.stringify(data, null, 2));
 
   const [notifications, setNotifications] = useState([
@@ -104,12 +109,27 @@ const limit = 10;
       reeciverImage: item?.avatar,
     });
   };
-const handleService = item => {
-  console.log(item, "item++++++")
-    router.push('/screens/ProfileScreen', {id:item?.id})
+  const handleService = (index, item) => {
+    console.log(item, "item==================");
+    console.log(item?._id, "Service ID 110");
+    console.log(item?.contributor?._id, "Contributor/User ID");
+    console.log(index, "Item Index");
+    console.log(item?.title, "Title===================")
+
+    // Pass contributor ID or index to the ProfileScreen
+    router.push({
+      pathname: '/screens/ProfileScreen',
+      params: {
+        userId: item?.contributor?._id, // ✅ Pass user ID
+        serviceId: item?._id,  
+        title: item?.title,         // Optional: Pass service ID too
+        index: index                    // Optional: Pass index
+      }
+    });
+
     setServiceData(item);
-}
-  
+  };
+
   return (
     <View style={tw`flex-1 bg-black px-[4%]`}>
       <View style={tw`flex-row w-full justify-between mt-4`}>
@@ -129,14 +149,14 @@ const handleService = item => {
 
       <View style={tw`my-8`}>
         <InputText
-        style={tw`text-white`}
+          style={tw`text-white`}
           containerStyle={tw`bg-[#262329] border h-14 border-[#565358]`}
           labelStyle={tw`text-white font-AvenirLTProBlack mt-3`}
           placeholder={'Boxing'}
           placeholderColor={'white'}
           //   label={'Password'}
           iconLeft={IconGeneralSearch}
-        // iconRight={isShowConfirmPassword ? iconLock : iconLock}
+          // iconRight={isShowConfirmPassword ? iconLock : iconLock}
           onChangeText={(text: any) => setTitles(text)}
         //   isShowPassword={!isShowConfirmPassword}
         //   rightIconPress={() =>
@@ -147,14 +167,16 @@ const handleService = item => {
       <FlatList
         data={services}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => {
+
+        renderItem={({ item, index }) => {
+          // console.log(item?._id, 'item+++++++++++++++++++++++++++++++++++++++++++++++++++++153')
           const contributorImage = item?.contributor?.image
             ? { uri: `${imageUrl}/${item?.contributor?.image}` }
             : require('../../assets/images/logo.png'); // fallback image
-
+          // console.log(index, "index=======================150")
           return (
             <TouchableOpacity
-            onPress={()=>handleService(item)}
+              onPress={() => handleService(index, item)}
               // onPress={() => router.push('/screens/ProfileScreen', {id:item?.id})}
               style={tw`flex-row items-center bg-[#262329] my-1 rounded-2xl gap-2 p-2`}>
 

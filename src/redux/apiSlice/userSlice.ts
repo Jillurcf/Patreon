@@ -10,6 +10,13 @@ const userSlice = api.injectEndpoints({
             }),
             providesTags: ["user"]
         }),
+        getSingleUser: builder.query({
+            query: (id)=> ({
+                url: `/users/${id}`,
+                method: "GET"
+            }),
+            providesTags: ["user"]
+        }),
         patchUpdateUserProfile: builder.mutation({
             query: (formData) => ({
               url: '/users/auth/update-profile-by-user',
@@ -35,5 +42,6 @@ const userSlice = api.injectEndpoints({
 export const {
     useGetUserQuery,
     usePatchUpdateUserProfileMutation,
-    useUpdateProfileMutation
+    useUpdateProfileMutation,
+    useGetSingleUserQuery,
 } = userSlice;

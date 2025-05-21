@@ -17,7 +17,7 @@ import {SvgXml} from 'react-native-svg';
 import tw from '../../lib/tailwind';
 import {RadioButton} from 'react-native-ui-lib';
 import TButton from '../../components/TButton';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 // import RadioButtonRN from 'radio-buttons-react-native';
 
 type Props = {};
@@ -25,7 +25,8 @@ type Props = {};
 const data = [{label: 'Option 1'}];
 const PaymentScreen = ({navigation}) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-
+   const { userId, serviceId, title } = useLocalSearchParams();
+console.log(userId, serviceId, "id+++++++++++++++++++29")
   const handleRadioButtonPress = (option: string) => {
     setSelectedOption(option);
   };
@@ -129,7 +130,14 @@ const PaymentScreen = ({navigation}) => {
           </View>
           <View style={tw`w-[50%] items-center my-6`}>
             <TButton
-              onPress={() => router.push('/screens/PaymentResult')}
+              onPress={() => router.push({
+                pathname: '/screens/PaymentResult',
+                params: {
+                  id: userId,
+                  serviceId: serviceId,
+                  title: title
+                }
+              })}
               title="Pay"
               titleStyle={tw`text-black`}
               containerStyle={tw`w-[90%] bg-white`}

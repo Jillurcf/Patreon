@@ -19,12 +19,13 @@ import {SvgXml} from 'react-native-svg';
 import tw from '../../lib/tailwind';
 import {RadioButton} from 'react-native-ui-lib';
 import TButton from '../../components/TButton';
+import { router } from 'expo-router';
 // import RadioButtonRN from 'radio-buttons-react-native';
 
 type Props = {};
 
 const data = [{label: 'Option 1'}];
-const WithdrawScreen2 = ({navigation}) => {
+const WithdrawScreen2 = () => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const handleRadioButtonPress = (option: string) => {
@@ -36,13 +37,7 @@ const WithdrawScreen2 = ({navigation}) => {
         <View style={tw`flex-row w-full justify-between mt-4`}>
           <TouchableOpacity
             onPress={() => {
-              if (navigation.canGoBack()) {
-                navigation.goBack();
-              } else {
-                console.log('No screen to go back to');
-                // Optionally, navigate to a default screen:
-                // navigation.navigate('HomeScreen');
-              }
+              router.back()
             }}
             style={tw`bg-PrimaryFocus rounded-full p-1`}>
             <SvgXml xml={IconBack} />
@@ -72,14 +67,14 @@ const WithdrawScreen2 = ({navigation}) => {
       {/* Continue button */}
       <View style={tw`flex items-center mb-12 justify-center w-full`}>
         <TButton
-          onPress={() => navigation?.navigate('WithdrawScreen2')}
+          onPress={() => router.push('/screens/WithdrawSceen2')}
           titleStyle={tw`text-black font-bold text-center`}
           title="Continue"
           containerStyle={tw`bg-primary w-[90%] rounded-full`}
         />
       </View>
 
-      <StatusBar backgroundColor="black" translucent />
+      <StatusBar backgroundColor="black" translucent={false} />
     </View>
   );
 };

@@ -3,25 +3,31 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useEffect} from 'react';
 import tw from '../../lib/tailwind';
-import {SvgXml} from 'react-native-svg';
-import {IconBack} from '../../assets/icons/icons';
 import TButton from '../../components/TButton';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 type Props = {};
 
-const PaymentResult = ({navigation}) => {
-  //   useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       navigation.navigate('Drawer');
-  //     }, 1000);
-  //     return () => clearTimeout(timer)
-  //   }, [navigation]);
+const PaymentResult = () => {
+   const { id, serviceId, title } = useLocalSearchParams();
+   console.log(id, serviceId, "id===================17")
+    useEffect(() => {
+      const timer = setTimeout(() => {
+       router.replace({
+        pathname: "/screens/MessageScreen", 
+        params: {
+          id:id,
+          serviceId: serviceId,
+          title: title,
+        }
+       })
+      }, 1000);
+      return () => clearTimeout(timer)
+    }, []);
   return (
     <View style={tw`flex-1 bg-black items-center justify-center px-[4%]`}>
       

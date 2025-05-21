@@ -1,35 +1,38 @@
-import {Image, StatusBar, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect } from 'react';
 import tw from '../../lib/tailwind';
-import {IconBack, IconDot} from '../../assets/icons/icons';
-import {SvgXml} from 'react-native-svg';
+import { IconBack, IconDot } from '../../assets/icons/icons';
+import { SvgXml } from 'react-native-svg';
 import TButton from '../../components/TButton';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useGetUserQuery } from '@/src/redux/apiSlice/userSlice';
+import { useGetSingleUserQuery, useGetUserQuery } from '@/src/redux/apiSlice/userSlice';
 import { getServiceData, lStorage } from '@/src/utils';
 import { FlatList } from 'react-native-gesture-handler';
 import { imageUrl } from '@/src/redux/baseApi';
 
 type Props = {};
 
-const ProfileScreen = ({navigation}) => {
-    const { id, services } = useLocalSearchParams();
-    const{data, isLoading, isError} = useGetUserQuery(id);
-    const [serviceData, setServiceData] = React.useState<any>(null);
-    console.log(serviceData, "serviceData++++++");
-    const fullImageUrl = data?.data?.image ? `${imageUrl}/${data.data.image}` : null;
-    useEffect(() => {
-      const service = getServiceData();
-      setServiceData(service);
-    }, []);
-    console.log(data?.data?.image, "data++++++");
-   
+const ProfileScreen = () => {
+  const { userId, serviceId, title } = useLocalSearchParams();
+
+  console.log(userId, serviceId, title, "id++++++18");
+  const { data, isLoading, isError } = useGetSingleUserQuery(userId);
+  console.log(data, '=======================data')
+  const [serviceData, setServiceData] = React.useState<any>(null);
+  console.log(serviceData, "serviceData++++++");
+  const fullImageUrl = data?.data?.image ? `${imageUrl}/${data.data.image}` : null;
+  useEffect(() => {
+    const service = getServiceData();
+    setServiceData(service);
+  }, []);
+  // console.log(id, "id++++++");
+
   return (
     <View style={tw`bg-black flex-1 mt-4`}>
       <View style={tw`flex-row w-full justify-between mt-4 px-[4%]`}>
         <TouchableOpacity
           onPress={() => {
-          router.back()
+            router.back()
           }}
           style={tw`bg-PrimaryFocus rounded-full p-1`}>
           <SvgXml xml={IconBack} />
@@ -41,12 +44,12 @@ const ProfileScreen = ({navigation}) => {
         <View style={tw`w-8`} />
       </View>
       <View style={tw`flex items-center justify-center mt-8`}>
-        <Image style={tw`rounded-full`} width={80} height={80} source={{uri:fullImageUrl}} />
+        <Image style={tw`rounded-full`} width={80} height={80} source={{ uri: fullImageUrl }} />
         <Text style={tw`text-white font-AvenirLTProBlack text-lg mt-2`}>
-       {data?.data?.username || 'Username'}
+          {data?.data?.username || 'Username'}
         </Text>
         <Text style={tw`text-white font-AvenirLTProBlack   `}>
-        {data?.data?.bio || 'Bio'}
+          {data?.data?.bio || 'Bio'}
         </Text>
       </View>
       <View style={tw`flex items-center justify-center my-8`}>
@@ -65,17 +68,17 @@ const ProfileScreen = ({navigation}) => {
           <View style={tw`w-[50%]`}>
             <Text
               style={tw`text-white text-center font-AvenirLTProBlack text-xl`}>
-            {data?.data?.services.length || '0'}
+              {data?.data?.services.length || '0'}
             </Text>
             <Text style={tw`text-white text-center font-AvenirLTProBlack`}>
-             Services
+              Services
             </Text>
           </View>
         </View>
       </View>
       <View style={tw`px-[6%]`}>
         <Text style={tw`text-white font-AvenirLTProBlack`}>
-        {serviceData?.about || 'Bio'}
+          {serviceData?.about || 'Bio'}
         </Text>
       </View>
       <View style={tw`items-center justify-center`}>
@@ -88,9 +91,9 @@ const ProfileScreen = ({navigation}) => {
           </Text>
           <FlatList
             data={serviceData?.explainMembership}
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <View style={tw`flex-row gap-4 items-center my-1`}>
-                <SvgXml xml={IconDot}/>
+                <SvgXml xml={IconDot} />
                 <Text style={tw`text-white text-xl font-AvenirLTProBlack`}>
                   {item}
                 </Text>
@@ -105,10 +108,21 @@ const ProfileScreen = ({navigation}) => {
       </View>
       <View style={tw`w-full items-center my-6`}>
         <TButton
-        onPress={()=> router.push('/screens/PaymentScreen')}
-        title='Subscribe' titleStyle={tw`text-black`} containerStyle={tw`w-[90%] bg-white`} />
+          onPress={() => router.push({
+            pathname: '/screens/PaymentScreen',
+            params: {
+              userId: userId, // ✅ Pass the userId you already have
+              serviceId: serviceId,
+              title: title,
+            }
+          })}
+          title="Subscribe"
+          titleStyle={tw`text-black`}
+          containerStyle={tw`w-[90%] bg-white`}
+        />
+
       </View>
-       <StatusBar backgroundColor="black" translucent />
+      <StatusBar backgroundColor="black" translucent />
     </View>
   );
 };

@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     ScrollView,
     SafeAreaView,
+    Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc'; // if using tailwind-rn
@@ -54,20 +55,25 @@ const ExplainMembershipScreen = () => {
         setFields(updatedFields);
     };
 
-    const handleSave = () => {
+    const handleSave =async () => {
+        console.log(fields, "Fields ++++++++++++++++++++++")
         try {
             const formData = new FormData()
             formData.append('title', value?.title)
             formData.append('subtitle', value?.subtitle)
-            formData.append('price', value?.price)
+            formData.append('price', value?.currency)
             formData.append('description', value?.description)
             formData.append('category', value?.category)
             formData.append('about', promptInput)
             formData.append('pdfFiles', selectedImages)
-            formData.append('explainMembership', fields)
+            // formData.append('explainMembership', fields)
+            formData.append("explainMembership", JSON.stringify(fields)); // ← becomes: '["Member ", "Member 1", "Member 2"]'
+
             console.log(formData, "formData==================")
-            const res =  postBecmeAContibutor(formData)
+            const res =await  postBecmeAContibutor(formData).unwrap();
+            router.push('/(drawer)/SettingProfile');
             console.log(res, "res++++++++++++++++")
+            Alert.alert("Service created succcessfully")
         } catch (err) {
             console.log(err)
         }

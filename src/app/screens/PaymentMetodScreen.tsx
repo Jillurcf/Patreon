@@ -33,6 +33,7 @@ import TButton from '../../components/TButton';
 import tw from '../../lib/tailwind';
 import IconArrow from '../../components/IconArrow';
 import {SvgXml} from 'react-native-svg';
+import { router } from 'expo-router';
 
 const data = [
   {label: 'Item 1', value: '1'},
@@ -45,7 +46,7 @@ const data = [
   {label: 'Item 8', value: '8'},
 ];
 
-const PaymentMethodScreen = ({navigation}: NavigProps<null>) => {
+const PaymentMethodScreen = () => {
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
 
@@ -65,7 +66,7 @@ const PaymentMethodScreen = ({navigation}: NavigProps<null>) => {
       <View style={tw`my-10`}>
         <View style={tw`flex-row w-full justify-between mt-4`}>
           <TouchableOpacity
-            onPress={() => navigation?.goBack()}
+            onPress={() => router.back()}
             style={tw`bg-PrimaryFocus rounded-full p-1`}>
             <SvgXml xml={IconBack} />
           </TouchableOpacity>
@@ -93,7 +94,7 @@ const PaymentMethodScreen = ({navigation}: NavigProps<null>) => {
       {/* Continue button */}
       <View style={tw`flex mb-6 my-12 items-center justify-center w-full`}>
         <TButton
-        onPress={()=> navigation?.navigate("WithdrawScreen")}
+        onPress={()=> router.push("/screens/WithdrawSceen2")}
           titleStyle={tw`text-black font-bold text-center`}
           title="Withdraw"
           containerStyle={tw`bg-primary w-[90%] rounded-full`}

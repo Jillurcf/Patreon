@@ -168,7 +168,23 @@ const SettingProfile = () => {
           </TouchableOpacity>
         </View>
       </View>
-
+      {/* ======================= My services ========================== */}
+      <View style={tw`items-center`}>
+        <View style={tw`flex-row items-center bg-[#262329]  w-[90%] rounded-2xl p-[6%] justify-between px-[4%]`}>
+          <View style={tw`w-[60%] items-center`}>
+            <TButton
+              onPress={() => router.push('/screens/MyServices')}
+              title="My services"
+              titleStyle={tw`text-black`}
+              containerStyle={tw`w-full bg-white`}
+            />
+          </View>
+          <View style={tw`w-[20%] items-center flex-row mx-[4%] `}>
+            <Text style={tw`text-white text-center`}>Total =</Text>
+            <Text style={tw`text-white`}>15</Text>
+          </View>
+        </View>
+      </View>
       {/* Contributor Box */}
       <View style={tw`items-center justify-center`}>
         <View style={tw`bg-[#262329] w-[90%] mt-6 rounded-2xl p-[6%]`}>

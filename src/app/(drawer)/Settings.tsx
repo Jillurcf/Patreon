@@ -55,7 +55,7 @@ const Settings = () => {
       <View style={tw`items-center justify-center my-6`}>
         <View style={tw`bg-[#262329] w-[100%] rounded-2xl p-4  my-2`}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('TermsAndCondition')}
+            onPress={() => router.push('/screens/TermsAndCondition')}
             style={tw`flex-row gap-3 items-center`}>
             <View
               style={tw`bg-[#565358] w-8 h-8 rounded-full items-center justify-center`}>
@@ -69,7 +69,7 @@ const Settings = () => {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Language')}
+            onPress={() => router.push('/screens/Language')}
             style={tw`flex-row gap-3 items-center mt-6`}>
             <View
               style={tw`bg-[#565358] w-8 h-8 rounded-full items-center justify-center`}>
@@ -81,7 +81,7 @@ const Settings = () => {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate('NotificationSetting')}
+            onPress={() => router.push('/screens/NotificationSettings')}
             style={tw`flex-row gap-3 items-center mt-6`}>
             <View
               style={tw`bg-[#565358] w-8 h-8 rounded-full items-center justify-center`}>
@@ -95,7 +95,7 @@ const Settings = () => {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-          onPress={()=> navigation.navigate("PaymentMethodScreen")}
+          onPress={()=> router.push("/screens/PaymentMetodScreen")}
           style={tw`flex-row gap-3 items-center mt-6`}>
             <View
               style={tw`bg-[#565358] w-8 h-8 rounded-full items-center justify-center`}>

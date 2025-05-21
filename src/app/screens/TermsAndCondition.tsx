@@ -21,11 +21,12 @@ import {
   import tw from '../../lib/tailwind';
   import {RadioButton} from 'react-native-ui-lib';
   import TButton from '../../components/TButton';
+import { router } from 'expo-router';
   // import RadioButtonRN from 'radio-buttons-react-native';
   
   type Props = {};
   
-  const TermsAndCondition = ({navigation}) => {
+  const TermsAndCondition = () => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
   
     const handleRadioButtonPress = (option: string) => {
@@ -36,13 +37,7 @@ import {
         <View style={tw`flex-row w-full justify-between mt-4`}>
           <TouchableOpacity
             onPress={() => {
-              if (navigation.canGoBack()) {
-                navigation.goBack();
-              } else {
-                console.log('No screen to go back to');
-                // Optionally, navigate to a default screen:
-                // navigation.navigate('HomeScreen');
-              }
+             router.back()
             }}
             style={tw`bg-PrimaryFocus rounded-full p-1`}>
             <SvgXml xml={IconBack} />
@@ -70,7 +65,7 @@ import {
             </View>
           </View>
         
-        <StatusBar backgroundColor="black" translucent />
+        <StatusBar backgroundColor="black" translucent={false} />
       </View>
     );
   };

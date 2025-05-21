@@ -133,12 +133,12 @@ export const clearFormValue = () => {
 
 
 export const saveMediaPromptData = (
-  selectedImages: string[],
+  selectedPdf: File,
   capturedVideo: string | null,
   promptInput: string | null
 ) => {
   try {
-    lStorage.setString('selectedImages', JSON.stringify(selectedImages));
+    lStorage.setString('selectedImages', JSON.stringify(selectedPdf));
     lStorage.setString('capturedVideo', capturedVideo || '');
     lStorage.setString('promptInput', promptInput || '');
   } catch (e) {

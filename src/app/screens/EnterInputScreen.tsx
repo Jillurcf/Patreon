@@ -1,97 +1,145 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   StatusBar,
   Alert,
-  Image,
   ScrollView,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   TextInput,
 } from 'react-native';
-import ImageCropPicker from 'react-native-image-crop-picker';
-import Video from 'react-native-video';
-
 import { SvgXml } from 'react-native-svg';
-
-
-import {
-  BulbIcon,
-  CrossIcon,
-  Gallery,
-  IconBack,
-  IconUpload,
-  StillCamera,
-  VideoCam,
-} from '../../assets/icons/icons';
-import IButton from '../../components/IButton';
-import TButton from '../../components/TButton';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+import Pdf from 'react-native-pdf';
 import tw from '../../lib/tailwind';
 import { router } from 'expo-router';
 import { loadMediaPromptData, saveMediaPromptData } from '@/src/utils';
 
+import {
+  IconBack,
+  IconUpload,
+  CrossIcon,
+} from '../../assets/icons/icons';
+
+import TButton from '../../components/TButton';
+import WebView from 'react-native-webview';
 
 const EnterInput = () => {
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [promptInput, setPromptInput] = useState<string | null>("");
-  useEffect(() => {
-    const { selectedImages, promptInput } = loadMediaPromptData();
-    setSelectedImages(selectedImages);
-    setPromptInput(promptInput);
-  }, []);
+  const [promptInput, setPromptInput] = useState('');
+  // const [selectedPdf, setSelectedPdf] = useState(null);
+  const [selectedPdf, setSelectedPdf] = useState({
+    assets: [
+      {
+        uri: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        name: 'dummy.pdf',
+        size: 0,
+        mimeType: 'application/pdf',
+      },
+    ],
+    canceled: false,
+  });
 
-  console.log('Selected Images:', selectedImages, promptInput);
+  const openFilePicker = async () => {
+    const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
+    // Or if you use another picker that returns { assets, canceled } like your log
 
-  // Open gallery to select images
-  const openGallery = async () => {
-    try {
-      const images = await ImageCropPicker.openPicker({
-        multiple: true,
-        mediaType: 'photo',
-        cropping: true,
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const file = result.assets[0];
+
+      const destPath = FileSystem.cacheDirectory + file.name;
+
+      await FileSystem.copyAsync({
+        from: file.uri,
+        to: destPath,
       });
 
-      const imagePaths = images.map((image: any) => image.path);
-      setSelectedImages(prev => [...prev, ...imagePaths]);
-    } catch (error) {
-      if (error.message !== 'User cancelled image selection') {
-        Alert.alert('Error', error.message || 'Something went wrong');
-      }
+      const pdfFile = {
+        uri: destPath,
+        name: file.name,
+        size: file.size,
+        mimeType: file.mimeType || 'application/pdf',
+      };
+
+      console.log('PDF selected:', pdfFile.uri);
+      setSelectedPdf(pdfFile);
+    } else {
+      console.log('No file selected or operation canceled');
     }
   };
 
-  // Open camera to capture images
+  const isMounted = useRef(true);
+  console.log(selectedPdf, "selectedPdf ==================")
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
+  // const openFilePicker = async () => {
+  //   try {
+  //     const result = await DocumentPicker.getDocumentAsync({
+  //       type: 'application/pdf',
+  //       copyToCacheDirectory: true,
+  //     });
 
-  // Remove a specific image
-  const handleRemoveImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
-  };
+  //     console.log(result, 'result ++++++++++++++++');
+  //     setSelectedPdf({
+  //             assets: [
+  //               {
+  //                 uri: result?.assets[0]?.uri,
+  //                 name: result?.assets[0]?.name,
+  //                 size: result?.assets[0]?.size,
+  //                 mimeType: result?.assets[0]?.mimeType || 'application/pdf',
+  //               },
+  //             ],
+  //             canceled: false,
+  //           });
+  //     if (result.type === 'success') {
+  //       const destPath = FileSystem.cacheDirectory + result.name;
 
-  // Clear the captured video
+  //       await FileSystem.copyAsync({
+  //         from: result.uri,
+  //         to: destPath,
+  //       });
+
+  //       const pdfFile = {
+  //         uri: destPath,
+  //         name: result.name,
+  //         size: result.size,
+  //         mimeType: result.mimeType,
+  //       };
+
+  //       console.log('PDF selected:', pdfFile.uri);
+  //       setSelectedPdf(pdfFile);
+  //     }
+  //   } catch (error) {
+  //     Alert.alert('Error', error.message || 'Something went wrong picking the PDF.');
+  //   }
+  // };
+
   const handleSave = () => {
-    console.log(selectedImages, promptInput, "data before sending========")
-    saveMediaPromptData(selectedImages, null, promptInput);
+    console.log(selectedPdf, promptInput, 'data before sending ==========');
+    saveMediaPromptData(selectedPdf, null, promptInput);
     const { selectedImages: savedImages, promptInput: savedPrompt } = loadMediaPromptData();
     console.log(savedImages, savedPrompt, 'Retrieved data from storage ++++++++');
     Alert.alert('Saved', 'Your data has been saved successfully!');
-    router.push("/screens/ExplainMembership")
+    router.push('/screens/ExplainMembership');
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={tw`flex-1 bg-black`}>
+    <ScrollView style={tw`flex-1 bg-black`}>
       <ScrollView
         contentContainerStyle={tw`flex-grow bg-black items-center justify-between px-4`}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={tw`my-10`}>
+          {/* Header */}
           <View style={tw`flex-row w-full justify-between mt-4`}>
             <TouchableOpacity
               onPress={() => router.back()}
-              style={tw`bg-PrimaryFocus rounded-full p-1`}>
+              style={tw`bg-PrimaryFocus rounded-full p-1`}
+            >
               <SvgXml xml={IconBack} />
             </TouchableOpacity>
             <Text style={tw`text-white font-bold font-AvenirLTProBlack text-2xl`}>
@@ -100,13 +148,13 @@ const EnterInput = () => {
             <View style={tw`w-8`} />
           </View>
 
-          {/* Input Area */}
+          {/* Prompt Input */}
           <View style={tw`mt-8`}>
             <Text style={tw`text-white py-2 font-AvenirLTProBlack`}>Prompt input</Text>
             <View style={tw`h-44 p-2 bg-[#262329] border border-[#565358] w-full rounded-lg`}>
               <TextInput
                 value={promptInput}
-                onChangeText={setPromptInput}
+                onChangeText={(text) => setPromptInput(text)}
                 style={tw`text-left h-40 text-white`}
                 placeholder="Write it here"
                 placeholderTextColor="#c7c7c7"
@@ -118,48 +166,49 @@ const EnterInput = () => {
             </View>
           </View>
 
-          {/* Media Upload */}
+          {/* Upload File */}
           <View style={tw`my-6`}>
             <Text style={tw`text-white font-AvenirLTProBlack`}>Upload file</Text>
-            <View style={tw`flex items-center bg-[#262329] mt-2 rounded-2xl py-8 border border-[#565358] justify-center`}>
+            <View
+              style={tw`flex items-center bg-[#262329] mt-2 rounded-2xl py-8 border border-[#565358] justify-center`}
+            >
               <View style={tw`flex-row gap-6`}>
-                <TouchableOpacity onPress={openGallery}>
+                <TouchableOpacity onPress={openFilePicker}>
                   <SvgXml xml={IconUpload} />
                 </TouchableOpacity>
-
-                {/* <IButton containerStyle={tw`p-4 rounded-full`} svg={StillCamera} onPress={openCamera} />
-              <IButton containerStyle={tw`p-4 rounded-full`} svg={VideoCam} onPress={captureVideo} /> */}
               </View>
+
               <Text style={tw`text-white my-4`}>Upload file (50 mb maximum)</Text>
 
-              {/* Display selected images */}
-              {selectedImages.length > 0 && (
-                <View style={tw`flex-row flex-wrap gap-2 my-4`}>
-                  {selectedImages.map((image, index) => (
-                    <View key={index} style={tw`relative`}>
-                      <TouchableOpacity
-                      // onPress={() => navigation?.navigate('promptScreen')}
-                      >
-                        <Image source={{ uri: image }} style={tw`w-24 h-24 rounded-lg`} />
-                      </TouchableOpacity>
-                      <IButton
-                        containerStyle={tw`absolute top-[-8px] right-[-8px] bg-red-500 rounded-full p-1`}
-                        svg={CrossIcon}
-                        onPress={() => handleRemoveImage(index)}
-                      />
-                    </View>
-                  ))}
+              {selectedPdf && (
+                <View style={tw`w-full h-[500px] mt-4`}>
+                  {/* <TouchableOpacity
+                    onPress={() => setSelectedPdf(null)}
+                    style={tw`absolute top-2 right-2 z-10 bg-black/60 p-1 rounded-full`}
+                  >
+                    <SvgXml xml={CrossIcon} width={20} height={20} />
+                  </TouchableOpacity> */}
+
+                  {/* <WebView
+                    source={{ uri: selectedPdf?.assets[0]?.uri }}
+                    style={{ flex: 1 }}
+                    startInLoadingState
+                  /> */}
+                  <Pdf
+                    source={{ uri: selectedPdf?.uri }}
+                    style={{ flex: 1 }}
+                    trustAllCerts={false} // Optional: fix SSL issues
+                    onError={(error) => console.log("PDF load error:", error)}
+                  />
+
                 </View>
               )}
-
-              {/* Display captured video */}
-
             </View>
           </View>
         </View>
 
-        {/* Continue Button */}
-        <View style={tw`flex mb-6 my-12 items-center justify-center w-full`}>
+        {/* Save Button */}
+        <View style={tw`flex mb-6 items-center justify-center w-full`}>
           <TButton
             onPress={handleSave}
             titleStyle={tw`text-black font-bold text-center`}
@@ -170,8 +219,7 @@ const EnterInput = () => {
 
         <StatusBar backgroundColor={'gray'} translucent={false} />
       </ScrollView>
-    </KeyboardAvoidingView>
-
+    </ScrollView>
   );
 };
 
